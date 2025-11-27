@@ -281,7 +281,7 @@ int moveRight(char board[20][10], int blockBoardCoordinates[4][2], int *blockCen
     // Move all the blocks columns to the right
     for (int i = 0; i < 4; i++) {
         tempBlockBoardCoordinates[i][1] = blockBoardCoordinates[i][1] + 1;
-        if (tempBlockBoardCoordinates[i][1] > 19) {
+        if (tempBlockBoardCoordinates[i][1] >= 10) {
             return 1; // Trying to move out of right bounds
         }
         tempBlockBoardCoordinates[i][0] = blockBoardCoordinates[i][0]; // Store vertical too

@@ -50,7 +50,7 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
 
 
 void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
-    printf("\033[H");
+    printf("\033[H\033[J");
     char localBoard[20][10];
     // Copy the main board into localBoard
     for (int i = 0; i < 20; i++) {

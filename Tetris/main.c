@@ -14,26 +14,43 @@
 #define SPAWN_ROW 1
 #define SPAWN_COLUMN 5
 
+#include <termios.h>
+#include <unistd.h>
+#include <fcntl.h>
+
+void initTerminal(void) {
+    struct termios t;
+    tcgetattr(STDIN_FILENO, &t);
+    t.c_lflag &= ~(ICANON | ECHO); // Disable canonical mode & echo
+    tcsetattr(STDIN_FILENO, TCSANOW, &t);
+}
+
+int kbhit(void) {
+    struct timeval tv = {0, 0};
+    fd_set fds;
+    FD_ZERO(&fds);
+    FD_SET(STDIN_FILENO, &fds);
+    return select(STDIN_FILENO + 1, &fds, NULL, NULL, &tv) > 0;
+}
+
+int getch(void) {
+    char c;
+    if (read(STDIN_FILENO, &c, 1) < 0) return -1;
+    return c;
+}
 
 
 int main(int argc, const char * argv[]) {
     // Seeding rand
     srand((unsigned int)time(NULL));
+    
+    initTerminal();
+    
     int blockCenterRow = 0, blockCenterColumn = 0; // h block coordinates in other words
     int blockRelativeCoordinates[4][2]; // The blocks 5x5 coordinates
     int blockBoardCoordinates[4][2]; // The blocks board coordinates
     char board[20][10]; // Array containing all the blocks
     char blockColor; // Color of the current block
-    
-    
-    // Create block, do full rotation
-    //    blockColor = newBlock(blockCoordinates);
-    //    for (int i = 0; i < 5; i++) {
-    //        printBlock(blockCoordinates, blockColor, 1);
-    //        rotateBlock(blockCoordinates, blockColor);
-    //    }
-    
-    
     
     // Create board
     generateBoard(board, &blockCenterRow, &blockCenterColumn, SPAWN_ROW, SPAWN_COLUMN);
@@ -42,42 +59,70 @@ int main(int argc, const char * argv[]) {
     
     // Initialize flags
     int hitSomethingVertically = 0;
-
+    
+    int delay = 500000; // 0.5 seconds per downward move
+    int interval = 50000; // 0.05 seconds per loop
+    int counter = 0;
+    
     
     while (1) {
-        // Calculate user block coordinates
-        getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-
-        printf("\n\n");
-        printBoardColored(board, blockBoardCoordinates, blockColor);
-        
-        // Move the block down
-        hitSomethingVertically = moveDown(board, blockBoardCoordinates, &blockCenterRow);
-        
-        if (hitSomethingVertically) {
-            // Store current board status
-            applyBoard(board, blockBoardCoordinates, blockColor);
-            
-            // Reset block spawn point
-            blockCenterRow = SPAWN_ROW;
-            blockCenterColumn = SPAWN_COLUMN;
-            
-            // Create new block
-            blockColor = newBlock(blockRelativeCoordinates);
-            
-            // Get board coordinates of the new block
-            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-            
-
-            // Check if the block that was created over laps with any other blocks at spawn
-            if (checkOverlap(board, blockBoardCoordinates)) {
-                printf("\nGame Over!\n");
-                break;
+        if (kbhit()) {
+            int key = getch();
+            if (key == 'a') {
+                moveLeft(board, blockBoardCoordinates, &blockCenterColumn);
+                getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                printBoardColored(board, blockBoardCoordinates, blockColor);
+            } else if (key == 'd') {
+                moveRight(board, blockBoardCoordinates, &blockCenterColumn);
+                getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                printBoardColored(board, blockBoardCoordinates, blockColor);
+            } else if (key == 'w') {
+                rotateBlock(blockRelativeCoordinates, blockColor);
+                getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                printBoardColored(board, blockBoardCoordinates, blockColor);
             }
         }
-        sleep(1);
+
+
+        if (counter >= delay / interval) {
+            // Move the block down
+            hitSomethingVertically = moveDown(board, blockBoardCoordinates, &blockCenterRow);
+            
+            if (hitSomethingVertically) {
+                // Store current board status
+                applyBoard(board, blockBoardCoordinates, blockColor);
+                
+                // Reset block spawn point
+                blockCenterRow = SPAWN_ROW;
+                blockCenterColumn = SPAWN_COLUMN;
+                
+                // Create new block
+                blockColor = newBlock(blockRelativeCoordinates);
+                
+                // Get board coordinates of the new block
+                getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                
+                
+                // Check if the block that was created over laps with any other blocks at spawn
+                if (checkOverlap(board, blockBoardCoordinates)) {
+                    printf("\nGame Over!\n");
+                    break;
+                }
+            }
+            counter = 0;
+        }
+        getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+        printBoardColored(board, blockBoardCoordinates, blockColor);
+
+        usleep(interval);
+        counter++;
+        
     }
     
+    struct termios t;
+    tcgetattr(STDIN_FILENO, &t);
+    t.c_lflag |= (ICANON | ECHO);
+    tcsetattr(STDIN_FILENO, TCSANOW, &t);
     return EXIT_SUCCESS;
 }
 
