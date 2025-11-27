@@ -240,3 +240,56 @@ void getBoardBlockCoordinates(int blockRelativeCoordinates[4][2], int blockCente
         blockBoardCoordinates[k][1] = boardY;
     }
 }
+
+
+
+int checkOverlap(char board[20][10], int blockBoardCoordinates[4][2]) {
+    for (int k = 0; k<4; k++) {
+        int row = blockBoardCoordinates[k][0]; // Get block row
+        int column = blockBoardCoordinates[k][1]; // Get block column
+        if (board[row][column] != '.') {
+            return 1; // Overlap detected since there was a block different than nothing
+        }
+    }
+    return 0;
+}
+
+int moveLeft(char board[20][10], int blockBoardCoordinates[4][2], int *blockCenterColumn) {
+    int tempBlockBoardCoordinates[4][2];  // Test left move first on block board coordinates before moving in case move left isnt possible
+
+    // Move all the blocks columns to the left
+    for (int i = 0; i < 4; i++) {
+        tempBlockBoardCoordinates[i][1] = blockBoardCoordinates[i][1] - 1;
+        if (tempBlockBoardCoordinates[i][1] < 0) {
+            printf("\nTrying to move out of left bounds\n");
+            return 1; // Trying to move out of left bounds
+        }
+        tempBlockBoardCoordinates[i][0] = blockBoardCoordinates[i][0]; // Store vertical too
+    }
+    if (checkOverlap(board, tempBlockBoardCoordinates)) { // Check if any overlaps occur
+        printf("\nCant move left due to block blocking the way (overlap)\n");
+        return 1; // Cant move left due to block blocking the way (overlap)
+    }
+    *blockCenterColumn -= 1;
+    return 0;
+}
+
+
+int moveRight(char board[20][10], int blockBoardCoordinates[4][2], int *blockCenterColumn) {
+    int tempBlockBoardCoordinates[4][2];  // Test right move first on block board coordinates before moving in case move right isnt possible
+
+    // Move all the blocks columns to the right
+    for (int i = 0; i < 4; i++) {
+        tempBlockBoardCoordinates[i][1] = blockBoardCoordinates[i][1] + 1;
+        if (tempBlockBoardCoordinates[i][1] > 19) {
+            return 1; // Trying to move out of right bounds
+        }
+        tempBlockBoardCoordinates[i][0] = blockBoardCoordinates[i][0]; // Store vertical too
+    }
+    if (checkOverlap(board, tempBlockBoardCoordinates)) { // Check if any overlaps occur
+        return 1; // Cant move right due to block blocking the way (overlap)
+    }
+    *blockCenterColumn += 1;
+    return 0;
+}
+

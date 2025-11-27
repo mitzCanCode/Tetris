@@ -87,9 +87,9 @@ void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColu
         }
     }
     
-    board[1][5] = 'h';
-    // Pointer used to return back to actual vars
-    *blockCenterRow = 1;
-    *blockCenterColumn = 5;
+    // Pointers are used to return back to actual vars
+    *blockCenterRow = 1; // Player block row number
+    *blockCenterColumn = 5; // Player block column number
 }
+
 
