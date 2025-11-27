@@ -34,14 +34,14 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
         for (int j = 0; j < 10; j++) {
             char c = localBoard[i][j];
             switch(c) {
-                case 'p': printf("\033[35m▧\033[0m"); break; // Magenta
-                case 'b': printf("\033[34m▧\033[0m"); break; // Blue
-                case 'r': printf("\033[31m▧\033[0m"); break; // Red
-                case 'y': printf("\033[33m▧\033[0m"); break; // Yellow
-                case 'g': printf("\033[32m▧\033[0m"); break; // Green
-                case 'o': printf("\033[91m▧\033[0m"); break; // Bright red/orange
-                case 'c': printf("\033[36m▧\033[0m"); break; // Cyan
-                default:  printf("\033[90m■\033[0m"); break; // Gray
+                case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
+                case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
+                case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
+                case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
+                case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
+                case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
+                case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
+                default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
             }
         }
         printf("\n");
