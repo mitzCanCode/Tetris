@@ -21,5 +21,7 @@ int canRotate(int blockCoordinates[4][2], char blockColor, char board[20][10], i
 // Prints the block in a 5x5 grid for debugging, optionally prints coordinates
 void printBlock(int blockCoordinates[4][2], char blockColor, int printCoordinates);
 
+// Function used to get the actual block coordinates for the board
+void getBoardBlockCoordinates(int blockRelativeCoordinates[4][2], int blockCenterRow, int blockCenterColumn, int blockBoardCoordinates[4][2]);
 
 #endif

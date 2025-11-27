@@ -17,13 +17,14 @@ char newBlock(int blockCoordinates[4][2]) {
     printf("Chosen block: %d\n", choice);
     char blockColor;
     // Block coordinates: Index 0 = x, Index 1 = y
+    // First block is always center block
     switch (choice) {
         case 0: // T block
             // . T .
             // T T T
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 2; // First block
-            blockCoordinates[1][0] = 2; blockCoordinates[1][1] = 1; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 2; // Third block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 2; // Second block
+            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 1; // Third block
             blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'p';
             break;
@@ -31,9 +32,9 @@ char newBlock(int blockCoordinates[4][2]) {
         case 1: // J block
             // J . .
             // J J J
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 1; // First block
-            blockCoordinates[1][0] = 2; blockCoordinates[1][1] = 1; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 2; // Third block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 1; // Second block
+            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 1; // Third block
             blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'b';
             break;
@@ -41,9 +42,9 @@ char newBlock(int blockCoordinates[4][2]) {
         case 2: // L block
             // . . L
             // L L L
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 3; // First block
-            blockCoordinates[1][0] = 2; blockCoordinates[1][1] = 1; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 2; // Third block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 3; // Second block
+            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 1; // Third block
             blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'o';
             break;
@@ -61,36 +62,36 @@ char newBlock(int blockCoordinates[4][2]) {
         case 4: // S block
             // . S S
             // S S .
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 2; // First block
-            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 3; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 1; // Third block
-            blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 2; // Fourth block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 2; // Second block
+            blockCoordinates[2][0] = 1; blockCoordinates[2][1] = 3; // Third block
+            blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 1; // Fourth block
             blockColor = 'g';
             break;
 
         case 5: // Z block
             // Z Z .
             // . Z Z
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 1; // First block
-            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 2; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 2; // Third block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 1; // Second block
+            blockCoordinates[2][0] = 1; blockCoordinates[2][1] = 2; // Third block
             blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'r';
             break;
 
         case 6: // I block
             // I I I I
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 0; // First block
-            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 1; // Second block
+            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 1; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 0; // Second block
             blockCoordinates[2][0] = 1; blockCoordinates[2][1] = 2; // Third block
             blockCoordinates[3][0] = 1; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'c';
             break;
 
         default: // Fallback to T block
-            blockCoordinates[0][0] = 1; blockCoordinates[0][1] = 2; // First block
-            blockCoordinates[1][0] = 2; blockCoordinates[1][1] = 1; // Second block
-            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 2; // Third block
+            blockCoordinates[0][0] = 2; blockCoordinates[0][1] = 2; // First block
+            blockCoordinates[1][0] = 1; blockCoordinates[1][1] = 2; // Second block
+            blockCoordinates[2][0] = 2; blockCoordinates[2][1] = 1; // Third block
             blockCoordinates[3][0] = 2; blockCoordinates[3][1] = 3; // Fourth block
             blockColor = 'p';
             break;
@@ -227,3 +228,15 @@ void printBlock(int blockCoordinates[4][2], char blockColor, int printCoordinate
     }
 }
 
+// Function used to get the actual block coordinates for the board
+void getBoardBlockCoordinates(int blockRelativeCoordinates[4][2], int blockCenterRow, int blockCenterColumn, int blockBoardCoordinates[4][2]) {
+    int centerX = blockRelativeCoordinates[0][0];
+    int centerY = blockRelativeCoordinates[0][1];
+    
+    for (int k = 0; k < 4; k++) {
+        int boardX = blockCenterRow + (blockRelativeCoordinates[k][0] - centerX);
+        int boardY = blockCenterColumn + (blockRelativeCoordinates[k][1] - centerY);
+        blockBoardCoordinates[k][0] = boardX;
+        blockBoardCoordinates[k][1] = boardY;
+    }
+}

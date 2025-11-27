@@ -16,28 +16,33 @@
 int main(int argc, const char * argv[]) {
     // Seeding rand
     srand((unsigned int)time(NULL));
-    int blockCoordinates[4][2];
-    char board[20][10];
-    char blockColor;
-    for (int i = 0; i < 20; i++) {
-        for (int j = 0; j < 10; j++) {
-            board[i][j] = '.';
-        }
-    }
-    // Array containing all the blocks current locations
-    //  Index 0: x
-    //  Index 1: y
-    blockColor = newBlock(blockCoordinates);
+    int blockCenterRow = 0, blockCenterColumn = 0; // h block coordinates in other words
+    int blockRelativeCoordinates[4][2]; // The blocks 5x5 coordinates
+    int blockBoardCoordinates[4][2]; // The blocks board coordinates
+    char board[20][10]; // Array containing all the blocks
+    char blockColor; // Color of the current block
+
     
-
-    for (int k = 0; k<20; k++) {
-        for (int i = 0; i < 5; i++){
-            printBlock(blockCoordinates, blockColor, 1);
-            rotateBlock(blockCoordinates, blockColor);
-        }
-        blockColor = newBlock(blockCoordinates);
-
+    // Create block, do full rotation
+//    blockColor = newBlock(blockCoordinates);
+//    for (int i = 0; i < 5; i++) {
+//        printBlock(blockCoordinates, blockColor, 1);
+//        rotateBlock(blockCoordinates, blockColor);
+//    }
+    
+    for (int i = 0; i < 5; i++) {
+        
+        blockColor = newBlock(blockRelativeCoordinates);
+        
+        
+        generateBoard(board, &blockCenterRow, &blockCenterColumn);
+        
+        getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+        
+        printBoardColored(board, blockBoardCoordinates, blockColor);
+        
     }
+    
     return EXIT_SUCCESS;
 }
 
