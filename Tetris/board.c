@@ -9,7 +9,7 @@
 #include <stdio.h>
 
 void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
-    printf("\033[H");
+    printf("\033[H\033[J");
     char localBoard[20][10];
     // Copy the main board into localBoard
     for (int i = 0; i < 20; i++) {
@@ -28,7 +28,6 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
             localBoard[boardX][boardY] = blockColor;
         }
     }
-    
     // Print the board with colors
     for (int i = 0; i < 20; i++) {
         for (int j = 0; j < 10; j++) {
@@ -58,7 +57,6 @@ void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
             localBoard[i][j] = board[i][j];
         }
     }
-    
     for (int k = 0; k < 4; k++) {
         // Unpacking block coordinates
         int boardX = blockBoardCoordinates[k][0];
