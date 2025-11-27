@@ -7,6 +7,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
+#include <unistd.h>
 
 void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
     printf("\033[H\033[J");
@@ -40,6 +42,7 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
                 case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
                 case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
                 case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
+                case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
                 default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
             }
         }
@@ -101,6 +104,42 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
         // Bounds check
         if (boardX >= 0 && boardX < 20 && boardY >= 0 && boardY < 10) {
             board[boardX][boardY] = blockColor;
+        }
+    }
+    
+    for (int i = 0; i < 20; i++) {
+        int emptyFound = 0;
+        for (int j = 0; j < 10; j++) {
+            if (board[i][j] == '.') {
+                emptyFound = 1;
+                break;
+            }
+        }
+        if (emptyFound != 1) { // If empty wasnt found (aka line was full)
+            int nonEmptyRow = i;
+            int flashes = 3;
+            int totalDurationMs = 1000; // 1 second total
+            int delayPerFlashMs = totalDurationMs / (flashes * 2); // 2 states per flash: colored & cleared
+            
+            
+            for (int k = 0; k < 3; k++){ // Flash line 3 times
+                // Make line white
+                for (int j = 0; j < 10; j++) board[i][j] = 'w';
+                printBoardColored(board, blockBoardCoordinates, blockColor);
+                usleep(delayPerFlashMs * 1000); //
+
+                // Clear line
+                for (int j = 0; j < 10; j++) board[i][j] = '.';
+                printBoardColored(board, blockBoardCoordinates, blockColor);
+                usleep(delayPerFlashMs * 1000);
+            }
+            char newFirstRow[10] = {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'};
+            // Shift rows above the deleted row down
+            for (int k = nonEmptyRow; k > 0; k--) {
+                memcpy(board[k], board[k-1], sizeof(board[k])); // Move rows 0 to deleteRow-1 down by 1
+            }
+            
+            memcpy(board[0], newFirstRow, sizeof(newFirstRow)); // Place new row at the start
         }
     }
 }
