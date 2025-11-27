@@ -14,7 +14,6 @@
 // Fucntion to create a block
 char newBlock(int blockCoordinates[4][2]) {
     int choice = rand() % 7;
-    printf("Chosen block: %d\n", choice);
     char blockColor;
     // Block coordinates: Index 0 = x, Index 1 = y
     // First block is always center block

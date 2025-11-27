@@ -107,6 +107,13 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
         }
     }
     
+    int flashes = 3;
+    int totalDurationMs = 1000; // 1 second total
+    int delayPerFlashMs = totalDurationMs / (flashes * 2); // 2 states per flash: colored & cleared
+    int totalFullRows = 0;
+    int fullRows[20];
+    
+    // Find non empty lines
     for (int i = 0; i < 20; i++) {
         int emptyFound = 0;
         for (int j = 0; j < 10; j++) {
@@ -116,30 +123,47 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
             }
         }
         if (emptyFound != 1) { // If empty wasnt found (aka line was full)
-            int nonEmptyRow = i;
-            int flashes = 3;
-            int totalDurationMs = 1000; // 1 second total
-            int delayPerFlashMs = totalDurationMs / (flashes * 2); // 2 states per flash: colored & cleared
-            
-            
-            for (int k = 0; k < 3; k++){ // Flash line 3 times
-                // Make line white
-                for (int j = 0; j < 10; j++) board[i][j] = 'w';
-                printBoardColored(board, blockBoardCoordinates, blockColor);
-                usleep(delayPerFlashMs * 1000); //
+            fullRows[totalFullRows++] = i; // Store non empty row and increase full row count
+        }
+    }
+    // Flash Lines
+    for (int k = 0; k < 3; k++) { // Flash lines 3 times
+        // Make lines white
+        for (int i = 0; i < totalFullRows; i++) {
+            for (int j = 0; j < 10; j++) board[fullRows[i]][j] = 'w';
+        }
+        printBoardColored(board, blockBoardCoordinates, blockColor);
+        usleep(delayPerFlashMs * 1000); // Add delay between flashes
 
-                // Clear line
-                for (int j = 0; j < 10; j++) board[i][j] = '.';
-                printBoardColored(board, blockBoardCoordinates, blockColor);
-                usleep(delayPerFlashMs * 1000);
-            }
-            char newFirstRow[10] = {'.', '.', '.', '.', '.', '.', '.', '.', '.', '.'};
-            // Shift rows above the deleted row down
-            for (int k = nonEmptyRow; k > 0; k--) {
-                memcpy(board[k], board[k-1], sizeof(board[k])); // Move rows 0 to deleteRow-1 down by 1
-            }
-            
-            memcpy(board[0], newFirstRow, sizeof(newFirstRow)); // Place new row at the start
+        // Make lines white
+        for (int i = 0; i < totalFullRows; i++) {
+            for (int j = 0; j < 10; j++) board[fullRows[i]][j] = '.';
+        }
+        printBoardColored(board, blockBoardCoordinates, blockColor);
+        usleep(delayPerFlashMs * 1000); // Add delay between flashes
+    }
+
+    // Clear full lines
+    for (int i = 0; i < totalFullRows; i++) {
+        int row = fullRows[i];
+        
+        // Shift all rows above this row down by one
+        for (int k = row; k > 0; k--) {
+            memcpy(board[k], board[k-1], sizeof(board[k]));
+        }
+        
+        // Fill the top row with empty cells
+        for (int j = 0; j < 10; j++) board[0][j] = '.';
+        
+        // After shifting, all rows below have moved down by 1
+        for (int m = i + 1; m < totalFullRows; m++) {
+            fullRows[m]++; // Move the remaining full row indices down
         }
     }
 }
+
+
+
+
+
+
