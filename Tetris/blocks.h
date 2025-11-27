@@ -30,6 +30,9 @@ int moveLeft(char board[20][10], int blockBoardCoordinates[4][2], int *blockCent
 // Used to move block right
 int moveRight(char board[20][10], int blockBoardCoordinates[4][2], int *blockCenterColumn);
 
+// Used to move block down
+int moveDown(char board[20][10], int blockBoardCoordinates[4][2], int *blockCenterRow);
+
 // Used to check if a block overlaps another block
 int checkOverlap(char board[20][10], int blockBoardCoordinates[4][2]);
 

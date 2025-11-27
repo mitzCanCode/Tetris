@@ -11,6 +11,9 @@
 #include <time.h>
 #include "blocks.h"
 #include "board.h"
+#define SPAWN_ROW 1
+#define SPAWN_COLUMN 5
+
 
 
 int main(int argc, const char * argv[]) {
@@ -29,44 +32,50 @@ int main(int argc, const char * argv[]) {
     //        printBlock(blockCoordinates, blockColor, 1);
     //        rotateBlock(blockCoordinates, blockColor);
     //    }
+    
+    
+    
     // Create board
-    generateBoard(board, &blockCenterRow, &blockCenterColumn);
+    generateBoard(board, &blockCenterRow, &blockCenterColumn, SPAWN_ROW, SPAWN_COLUMN);
+    // Create user block
+    blockColor = newBlock(blockRelativeCoordinates);
+    
+    // Initialize flags
+    int hitSomethingVertically = 0;
+
     
     while (1) {
-        // Create block
-        blockColor = newBlock(blockRelativeCoordinates);
-        // Check if the block that was created over laps with any other blocks
-        getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Get board coordinates
-        printBoardColored(board, blockBoardCoordinates, blockColor);
-        
-        
-        for (int i = 0; i<10; i++) { // Move 4 times to the left
-            int result = moveLeft(board, blockBoardCoordinates, &blockCenterColumn); // Move the block left
-            if (result) {
-                printf("\nError!\n");
-            }
+        // Calculate user block coordinates
+        getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
 
-            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
-            printf("\n\n");
-            printBoardColored(board, blockBoardCoordinates, blockColor);
-            
-        }
-        for (int i = 0; i<2; i++) { // Move 2 times to the right
-            int result = moveRight(board, blockBoardCoordinates, &blockCenterColumn); // Move the block right
-            if (result) {
-                printf("\nError!\n");
-            }
-
-            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
-            printf("\n\n");
-            printBoardColored(board, blockBoardCoordinates, blockColor);
-            
-        }
-        
-        
         printf("\n\n");
         printBoardColored(board, blockBoardCoordinates, blockColor);
-        break;
+        
+        // Move the block down
+        hitSomethingVertically = moveDown(board, blockBoardCoordinates, &blockCenterRow);
+        
+        if (hitSomethingVertically) {
+            // Store current board status
+            applyBoard(board, blockBoardCoordinates, blockColor);
+            
+            // Reset block spawn point
+            blockCenterRow = SPAWN_ROW;
+            blockCenterColumn = SPAWN_COLUMN;
+            
+            // Create new block
+            blockColor = newBlock(blockRelativeCoordinates);
+            
+            // Get board coordinates of the new block
+            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+            
+
+            // Check if the block that was created over laps with any other blocks at spawn
+            if (checkOverlap(board, blockBoardCoordinates)) {
+                printf("\nGame Over!\n");
+                break;
+            }
+        }
+        sleep(1);
     }
     
     return EXIT_SUCCESS;
@@ -103,3 +112,27 @@ int main(int argc, const char * argv[]) {
 //     '', '', '', '', '', '', '', '', '', '',
 //     '', '', '', '', '', '', '', '', '', '',
 //     ]
+
+
+//        for (int i = 0; i<10; i++) { // Move 4 times to the left
+//            int result = moveLeft(board, blockBoardCoordinates, &blockCenterColumn); // Move the block left
+//            if (result) {
+//                printf("\nError!\n");
+//            }
+//
+//            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
+//            printf("\n\n");
+//            printBoardColored(board, blockBoardCoordinates, blockColor);
+//
+//        }
+//        for (int i = 0; i<2; i++) { // Move 2 times to the right
+//            int result = moveRight(board, blockBoardCoordinates, &blockCenterColumn); // Move the block right
+//            if (result) {
+//                printf("\nError!\n");
+//            }
+//
+//            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
+//            printf("\n\n");
+//            printBoardColored(board, blockBoardCoordinates, blockColor);
+//
+//        }

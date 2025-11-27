@@ -14,6 +14,9 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
 void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor);
 
 // Generate the board
-void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn);
+void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn, int blockCenterSpawnRow, int blockCenterSpawnColumn);
+
+// Used to redraw the board keeping the blocks
+void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor);
 
 #endif

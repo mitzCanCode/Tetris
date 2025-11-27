@@ -9,6 +9,7 @@
 #include <stdio.h>
 
 void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
+    printf("\033[H");
     char localBoard[20][10];
     // Copy the main board into localBoard
     for (int i = 0; i < 20; i++) {
@@ -49,6 +50,7 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
 
 
 void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
+    printf("\033[H");
     char localBoard[20][10];
     // Copy the main board into localBoard
     for (int i = 0; i < 20; i++) {
@@ -80,7 +82,7 @@ void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
 
 
 
-void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn) {
+void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn, int blockCenterSpawnRow, int blockCenterSpawnColumn) {
     for (int i = 0; i < 20; i++) {
         for (int j = 0; j < 10; j++) {
             board[i][j] = '.';
@@ -88,8 +90,19 @@ void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColu
     }
     
     // Pointers are used to return back to actual vars
-    *blockCenterRow = 1; // Player block row number
-    *blockCenterColumn = 5; // Player block column number
+    *blockCenterRow = blockCenterSpawnRow; // Player block row number
+    *blockCenterColumn = blockCenterSpawnColumn; // Player block column number
 }
 
-
+void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
+    for (int k = 0; k < 4; k++) {
+        // Unpacking block coordinates
+        int boardX = blockBoardCoordinates[k][0];
+        int boardY = blockBoardCoordinates[k][1];
+        
+        // Bounds check
+        if (boardX >= 0 && boardX < 20 && boardY >= 0 && boardY < 10) {
+            board[boardX][boardY] = blockColor;
+        }
+    }
+}

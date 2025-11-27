@@ -293,3 +293,23 @@ int moveRight(char board[20][10], int blockBoardCoordinates[4][2], int *blockCen
     return 0;
 }
 
+
+int moveDown(char board[20][10], int blockBoardCoordinates[4][2], int *blockCenterRow) {
+    int tempBlockBoardCoordinates[4][2];  // Test down move first on block board coordinates before moving in case move down isnt possible
+
+    // Move all the blocks rows down
+    for (int i = 0; i < 4; i++) {
+        tempBlockBoardCoordinates[i][0] = blockBoardCoordinates[i][0] + 1 ;
+        if (tempBlockBoardCoordinates[i][0] > 19) {
+            printf("\nHit bottom!\n");
+            return 1; // Trying to move out of vertical bounds
+        }
+        tempBlockBoardCoordinates[i][1] = blockBoardCoordinates[i][1]; // Store vertical too
+    }
+    if (checkOverlap(board, tempBlockBoardCoordinates)) { // Check if any overlaps occur
+        printf("\nHit block!\n");
+        return 1; // Cant go down hit block
+    }
+    *blockCenterRow += 1;
+    return 0;
+}
