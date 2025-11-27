@@ -81,6 +81,40 @@ int main(int argc, const char * argv[]) {
                 getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
                 printBoardColored(board, blockBoardCoordinates, blockColor);
             }
+            else if (key == 's') {
+                // Move the block down unitl something is hit
+                hitSomethingVertically = moveDown(board, blockBoardCoordinates, &blockCenterRow);
+                while (!hitSomethingVertically) {
+                    getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                    hitSomethingVertically = moveDown(board, blockBoardCoordinates, &blockCenterRow);
+                }
+                
+                // Manage the hit happening
+                    // Store current board status
+                    applyBoard(board, blockBoardCoordinates, blockColor);
+                    
+                    // Spawn new block
+                    blockCenterRow = SPAWN_ROW;
+                    blockCenterColumn = SPAWN_COLUMN;
+                    blockColor = newBlock(blockRelativeCoordinates);
+                    getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                    
+                    // Check if the block that was created over laps with any other blocks at spawn
+                    if (checkOverlap(board, blockBoardCoordinates)) {
+                        printf("\nGame Over!\n");
+                        break;
+                    }
+                
+                    printBoardColored(board, blockBoardCoordinates, blockColor);
+                
+                    // Reset flags
+                    counter = 0;
+                    hitSomethingVertically = 0;
+
+                    // Skip final print & sleep this iteration
+                    continue;
+                
+            }
         }
 
 
