@@ -10,19 +10,16 @@
 #include <unistd.h>
 #include <time.h>
 #include <string.h>
+#include <termios.h>
+#include <fcntl.h>
 
 #include "blocks.h"
 #include "board.h"
-
 
 #define SPAWN_ROW 1
 #define SPAWN_COLUMN 5
 #define BLOCK_QUEUE_SIZE 4
 
-
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
 
 void initTerminal(void) {
     struct termios t;
@@ -77,7 +74,7 @@ int main(int argc, const char * argv[]) {
     // Seeding rand
     srand((unsigned int)time(NULL));
     
-    initTerminal();
+    initTerminal(); // Initialiazing the terminal settings
     
     char board[20][10]; // Array containing all the blocks
     
@@ -91,6 +88,10 @@ int main(int argc, const char * argv[]) {
     int currentBlockRelativeCoordinates[4][2]; // The blocks 5x5 coordinates
     int blockCenterRow = 0, blockCenterColumn = 0; // h block coordinates in other words
     char currentBlockColor = '\0'; // Color of the current block
+    
+    // Score variables
+    long long int score = 0;
+    long long int totalLinesCleared = 0;
     
     // Create board
     generateBoard(board, &blockCenterRow, &blockCenterColumn, SPAWN_ROW, SPAWN_COLUMN);
@@ -120,17 +121,17 @@ int main(int argc, const char * argv[]) {
             if (key == 'a') {
                 moveLeft(board, blockBoardCoordinates, &blockCenterColumn);
                 getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
             } else if (key == 'd') {
                 moveRight(board, blockBoardCoordinates, &blockCenterColumn);
                 getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
 
             } else if (key == 'w') {
                 if ( canRotate(currentBlockRelativeCoordinates, currentBlockColor, board, blockCenterRow, blockCenterColumn) ) {
                     rotateBlock(currentBlockRelativeCoordinates, currentBlockColor);
                     getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-                    printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                    printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
                 }
             }
             else if (key == 's') {
@@ -142,7 +143,7 @@ int main(int argc, const char * argv[]) {
                 }
                 
                 // Manage the hit happening
-                applyBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates); // Store current board status
+                applyBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score); // Store current board status
                 
                 // Spawn new block
                 blockCenterRow = SPAWN_ROW;
@@ -163,7 +164,7 @@ int main(int argc, const char * argv[]) {
                     break;
                 }
                 
-                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
 
                 // Reset flags
                 counter = 0;
@@ -182,7 +183,7 @@ int main(int argc, const char * argv[]) {
             
             if (hitSomethingVertically) {
                 // Store current board status
-                applyBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                applyBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
                 
                 // Reset block spawn point
                 blockCenterRow = SPAWN_ROW;
@@ -208,7 +209,7 @@ int main(int argc, const char * argv[]) {
             counter = 0;
         }
         getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-        printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+        printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates, &totalLinesCleared, &score);
         
         usleep(interval);
         counter++;
@@ -221,59 +222,3 @@ int main(int argc, const char * argv[]) {
     tcsetattr(STDIN_FILENO, TCSANOW, &t);
     return EXIT_SUCCESS;
 }
-
-
-
-
-//printBoardColored(board, blockBoardCoordinates, blockColor);
-//moveLeft(board, blockBoardCoordinates, &blockCenterColumn);
-//printBoardColored(board, blockBoardCoordinates, blockColor);
-
-
-// 10 x 20 Board
-//    [
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', 'h', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     '.', '.', '.', '.', '.', '.', '.', '.', '.', '.',
-//     ]
-
-
-//        for (int i = 0; i<10; i++) { // Move 4 times to the left
-//            int result = moveLeft(board, blockBoardCoordinates, &blockCenterColumn); // Move the block left
-//            if (result) {
-//                printf("\nError!\n");
-//            }
-//
-//            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
-//            printf("\n\n");
-//            printBoardColored(board, blockBoardCoordinates, blockColor);
-//
-//        }
-//        for (int i = 0; i<2; i++) { // Move 2 times to the right
-//            int result = moveRight(board, blockBoardCoordinates, &blockCenterColumn); // Move the block right
-//            if (result) {
-//                printf("\nError!\n");
-//            }
-//
-//            getBoardBlockCoordinates(blockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates); // Recalculate board coords
-//            printf("\n\n");
-//            printBoardColored(board, blockBoardCoordinates, blockColor);
-//
-//        }

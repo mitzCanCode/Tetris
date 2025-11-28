@@ -12,7 +12,7 @@
 #include <unistd.h>
 #define BLOCK_QUEUE_SIZE 4
 
-void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2]) {
+void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2], long long int *totalLinesCleared, long long int *score) {
     printf("\033[H\033[J");
     char localBoard[20][10];
     // Copy the main board into localBoard
@@ -119,6 +119,11 @@ void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
         
         printf("\n");
     }
+    // Calculate the user level
+    long long int level = *totalLinesCleared / 10;
+    
+    // Stats line
+    printf("Score: %lld\tTotal lines cleared: %lld\tLevel: %lld\n", *score, *totalLinesCleared, level);
 }
 
 void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn, int blockCenterSpawnRow, int blockCenterSpawnColumn) {
@@ -133,7 +138,7 @@ void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColu
     *blockCenterColumn = blockCenterSpawnColumn; // Player block column number
 }
 
-void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2]) {
+void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2], long long int *totalLinesCleared, long long int *score) {
     for (int k = 0; k < 4; k++) {
         // Unpacking block coordinates
         int boardX = blockBoardCoordinates[k][0];
@@ -164,6 +169,7 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
             fullRows[totalFullRows++] = i; // Store non empty row and increase full row count
         }
     }
+    
     // Flash Lines
     for (int k = 0; k < 3; k++) { // Flash lines 3 times
         // Make lines empty
@@ -171,14 +177,14 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
             for (int j = 0; j < 10; j++) board[fullRows[i]][j] = '.';
         }
 
-        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
+        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates, totalLinesCleared, score);
         usleep(delayPerFlashMs * 1000); // Add delay between flashes
         
         // Make lines white
         for (int i = 0; i < totalFullRows; i++) {
             for (int j = 0; j < 10; j++) board[fullRows[i]][j] = 'w';
         }
-        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
+        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates, totalLinesCleared, score);
         usleep(delayPerFlashMs * 1000); // Add delay between flashes
     }
     
@@ -205,4 +211,29 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
     for (int i = writeRow; i >= 0; i--) {
         for (int j = 0; j < 10; j++) board[i][j] = '.';
     }
+    
+    *totalLinesCleared = totalFullRows + *totalLinesCleared;
+    
+    // Calculate score
+    int scoreToAdd = 0;
+    
+    // Calculate the user level
+    long long int level = *totalLinesCleared / 10;
+
+    switch (totalFullRows) {
+        case 0:
+            scoreToAdd = 0; break;
+        case 1:
+            scoreToAdd += 40 * (level + 1); break;
+        case 2:
+            scoreToAdd += 100 * (level + 1); break;
+        case 3:
+            scoreToAdd += 300 * (level + 1); break;
+        case 4:
+            scoreToAdd += 1200 * (level + 1); break;
+        default:
+            scoreToAdd = 0; break;
+    }
+    
+    *score += scoreToAdd;
 }
