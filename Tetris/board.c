@@ -1,3 +1,4 @@
+
 //
 //  board.c
 //  Tetris
@@ -165,42 +166,43 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
     }
     // Flash Lines
     for (int k = 0; k < 3; k++) { // Flash lines 3 times
+        // Make lines empty
+        for (int i = 0; i < totalFullRows; i++) {
+            for (int j = 0; j < 10; j++) board[fullRows[i]][j] = '.';
+        }
+
+        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
+        usleep(delayPerFlashMs * 1000); // Add delay between flashes
+        
         // Make lines white
         for (int i = 0; i < totalFullRows; i++) {
             for (int j = 0; j < 10; j++) board[fullRows[i]][j] = 'w';
         }
         printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
         usleep(delayPerFlashMs * 1000); // Add delay between flashes
-        
-        // Make lines white
-        for (int i = 0; i < totalFullRows; i++) {
-            for (int j = 0; j < 10; j++) board[fullRows[i]][j] = '.';
-        }
-        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
-        usleep(delayPerFlashMs * 1000); // Add delay between flashes
     }
     
-    // Clear full lines
-    for (int i = 0; i < totalFullRows; i++) {
-        int row = fullRows[i];
-        
-        // Shift all rows above this row down by one
-        for (int k = row; k > 0; k--) {
-            memcpy(board[k], board[k-1], sizeof(board[k]));
+    // Clear full lines from bottom up using a "write pointer"
+    int writeRow = 19; // Start writing from the bottom
+    for (int readRow = 19; readRow >= 0; readRow--) {
+        int isFull = 1;
+        for (int j = 0; j < 10; j++) {
+            if (board[readRow][j] == '.') {
+                isFull = 0;
+                break;
+            }
         }
-        
-        // Fill the top row with empty cells
-        for (int j = 0; j < 10; j++) board[0][j] = '.';
-        
-        // After shifting, all rows below have moved down by 1
-        for (int m = i + 1; m < totalFullRows; m++) {
-            fullRows[m]++; // Move the remaining full row indices down
+        if (!isFull) {
+            // Copy this row down to writeRow
+            if (writeRow != readRow) {
+                memcpy(board[writeRow], board[readRow], sizeof(board[readRow]));
+            }
+            writeRow--;
         }
     }
+    
+    // Fill all remaining rows above writeRow with empty cells
+    for (int i = writeRow; i >= 0; i--) {
+        for (int j = 0; j < 10; j++) board[i][j] = '.';
+    }
 }
-
-
-
-
-
-
