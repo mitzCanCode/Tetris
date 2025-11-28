@@ -9,8 +9,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#define BLOCK_QUEUE_SIZE 4
 
-void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
+void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2]) {
     printf("\033[H\033[J");
     char localBoard[20][10];
     // Copy the main board into localBoard
@@ -30,8 +31,30 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
             localBoard[boardX][boardY] = blockColor;
         }
     }
-    // Print the board with colors
+    
+    // Create queueBoard: 20 rows x 5 cols
+    char queueBoard[20][5];
+    for (int i = 0; i < 20; i++)
+        for (int j = 0; j < 5; j++)
+            queueBoard[i][j] = '.'; // Fill empty
+    
+    // Fill queueBoard with queued blocks (stacked vertically)
+    for (int q = 0; q < BLOCK_QUEUE_SIZE; q++) {
+        int startRow = q * 5; // Each block uses 5 rows
+        for (int k = 0; k < 4; k++) {
+            int relRow = queueRelativeCoordinates[q][k][0];
+            int relCol = queueRelativeCoordinates[q][k][1];
+            int row = startRow + relRow;
+            int col = relCol; // 0–4
+            if (row >= 0 && row < 20 && col >= 0 && col < 5) {
+                queueBoard[row][col] = queueColors[q];
+            }
+        }
+    }
+    
+    // Print the board and queue
     for (int i = 0; i < 20; i++) {
+        printf("\033[30m|\033[0m"); // Print first blocks left vertical line
         for (int j = 0; j < 10; j++) {
             char c = localBoard[i][j];
             switch(c) {
@@ -46,42 +69,28 @@ void printBoardColored(char board[20][10], int blockBoardCoordinates[4][2], char
                 default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
             }
         }
-        printf("\n");
-    }
-}
-
-
-void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
-    printf("\033[H\033[J");
-    char localBoard[20][10];
-    // Copy the main board into localBoard
-    for (int i = 0; i < 20; i++) {
-        for (int j = 0; j < 10; j++) {
-            localBoard[i][j] = board[i][j];
-        }
-    }
-    for (int k = 0; k < 4; k++) {
-        // Unpacking block coordinates
-        int boardX = blockBoardCoordinates[k][0];
-        int boardY = blockBoardCoordinates[k][1];
         
-        // Bounds check
-        if (boardX >= 0 && boardX < 20 && boardY >= 0 && boardY < 10) {
-            localBoard[boardX][boardY] = blockColor;
+        printf("  "); // Gap between board and queue
+        
+        // Print queueBoard
+        for (int j = 0; j < 5; j++) {
+            char c = queueBoard[i][j];
+            switch(c) {
+                case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
+                case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
+                case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
+                case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
+                case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
+                case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
+                case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
+                case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
+                default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
+            }
         }
-    }
-    
-    
-    // Print the board with colors
-    for (int i = 0; i < 20; i++) {
-        for (int j = 0; j < 10; j++) {
-            printf("%c", localBoard[i][j]);
-        }
+        
         printf("\n");
     }
 }
-
-
 
 void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColumn, int blockCenterSpawnRow, int blockCenterSpawnColumn) {
     for (int i = 0; i < 20; i++) {
@@ -95,7 +104,7 @@ void generateBoard(char board[20][10], int *blockCenterRow, int *blockCenterColu
     *blockCenterColumn = blockCenterSpawnColumn; // Player block column number
 }
 
-void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor) {
+void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockColor, char queueColors[BLOCK_QUEUE_SIZE], int queueRelativeCoordinates[BLOCK_QUEUE_SIZE][4][2]) {
     for (int k = 0; k < 4; k++) {
         // Unpacking block coordinates
         int boardX = blockBoardCoordinates[k][0];
@@ -132,17 +141,17 @@ void applyBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
         for (int i = 0; i < totalFullRows; i++) {
             for (int j = 0; j < 10; j++) board[fullRows[i]][j] = 'w';
         }
-        printBoardColored(board, blockBoardCoordinates, blockColor);
+        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
         usleep(delayPerFlashMs * 1000); // Add delay between flashes
-
+        
         // Make lines white
         for (int i = 0; i < totalFullRows; i++) {
             for (int j = 0; j < 10; j++) board[fullRows[i]][j] = '.';
         }
-        printBoardColored(board, blockBoardCoordinates, blockColor);
+        printBoard(board, blockBoardCoordinates, blockColor, queueColors, queueRelativeCoordinates);
         usleep(delayPerFlashMs * 1000); // Add delay between flashes
     }
-
+    
     // Clear full lines
     for (int i = 0; i < totalFullRows; i++) {
         int row = fullRows[i];
