@@ -98,8 +98,18 @@ char newBlock(int blockCoordinates[4][2]) {
     return blockColor;
 }
 
-
-
+// Function used to get the actual block coordinates for the board
+void getBoardBlockCoordinates(int blockRelativeCoordinates[4][2], int blockCenterRow, int blockCenterColumn, int blockBoardCoordinates[4][2]) {
+    int centerX = blockRelativeCoordinates[0][0];
+    int centerY = blockRelativeCoordinates[0][1];
+    
+    for (int k = 0; k < 4; k++) {
+        int boardX = blockCenterRow + (blockRelativeCoordinates[k][0] - centerX);
+        int boardY = blockCenterColumn + (blockRelativeCoordinates[k][1] - centerY);
+        blockBoardCoordinates[k][0] = boardX;
+        blockBoardCoordinates[k][1] = boardY;
+    }
+}
 
 void rotateBlock(int blockCoordinates[4][2], char blockColor) {
     if (blockColor == 'y') return; // O block does not rotate
@@ -147,47 +157,33 @@ void rotateBlock(int blockCoordinates[4][2], char blockColor) {
 }
 
 // Function to check if rotation is possible within the field
-int canRotate(int blockCoordinates[4][2], char blockColor, char board[20][10], int userBlockCoordinates[2]) {
+int canRotate(int blockCoordinates[4][2], char blockColor, char board[20][10], int blockCenterRow, int blockCenterColumn) {
     if (blockColor == 'y') return 1; // O block does not rotate
 
-    // Create 5x5 local grid
-    char mat[5][5];
-    for (int i = 0; i < 5; i++)
-        for (int j = 0; j < 5; j++)
-            mat[i][j] = '.';
-
-    for (int k = 0; k < 4; k++)
-        mat[blockCoordinates[k][0]][blockCoordinates[k][1]] = blockColor;
-
-    // Rotate the 5x5 matrix 90 degrees clockwise
-    for (int i = 0; i < 5; i++) {
-        for (int j = i + 1; j < 5; j++) {
-            char tmp = mat[i][j];
-            mat[i][j] = mat[j][i];
-            mat[j][i] = tmp;
-        }
-    }
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5 / 2; j++) {
-            char tmp = mat[i][j];
-            mat[i][j] = mat[i][5 - 1 - j];
-            mat[i][5 - 1 - j] = tmp;
-        }
+    // Create a copy of the block coordinates
+    int tempCoords[4][2];
+    for (int k = 0; k < 4; k++) {
+        tempCoords[k][0] = blockCoordinates[k][0];
+        tempCoords[k][1] = blockCoordinates[k][1];
     }
 
-    // Check if rotated block fits on the board
-    for (int i = 0; i < 5; i++) {
-        for (int j = 0; j < 5; j++) {
-            if (mat[i][j] != '.') {
-                int boardX = i + userBlockCoordinates[0];
-                int boardY = j + userBlockCoordinates[1];
-                if (boardX < 0 || boardX >= 20 || boardY < 0 || boardY >= 10) return 0;
-                if (board[boardX][boardY] != '.') return 0;
-            }
-        }
+    rotateBlock(tempCoords, blockColor);
+    
+    int boardCoords[4][2];
+    getBoardBlockCoordinates(tempCoords, blockCenterRow, blockCenterColumn, boardCoords);
+
+    // Check if any block is out-of-bounds or collides
+    for (int k = 0; k < 4; k++) {
+        int x = boardCoords[k][0]; // Extract x board coords
+        int y = boardCoords[k][1]; // Extract y board coords
+
+        if (x < 0 || x >= 20 || y < 0 || y >= 10)
+            return 0; // Out of bounds
+        if (board[x][y] != '.')
+            return 0; // Collision
     }
 
-    return 1;
+    return 1; // Safe to rotate
 }
 
 void printBlock(int blockCoordinates[4][2], char blockColor, int printCoordinates) {
@@ -227,18 +223,7 @@ void printBlock(int blockCoordinates[4][2], char blockColor, int printCoordinate
     }
 }
 
-// Function used to get the actual block coordinates for the board
-void getBoardBlockCoordinates(int blockRelativeCoordinates[4][2], int blockCenterRow, int blockCenterColumn, int blockBoardCoordinates[4][2]) {
-    int centerX = blockRelativeCoordinates[0][0];
-    int centerY = blockRelativeCoordinates[0][1];
-    
-    for (int k = 0; k < 4; k++) {
-        int boardX = blockCenterRow + (blockRelativeCoordinates[k][0] - centerX);
-        int boardY = blockCenterColumn + (blockRelativeCoordinates[k][1] - centerY);
-        blockBoardCoordinates[k][0] = boardX;
-        blockBoardCoordinates[k][1] = boardY;
-    }
-}
+
 
 
 

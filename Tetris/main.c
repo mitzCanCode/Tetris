@@ -127,10 +127,11 @@ int main(int argc, const char * argv[]) {
                 printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
 
             } else if (key == 'w') {
-                rotateBlock(currentBlockRelativeCoordinates, currentBlockColor);
-                getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
-                printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
-
+                if ( canRotate(currentBlockRelativeCoordinates, currentBlockColor, board, blockCenterRow, blockCenterColumn) ) {
+                    rotateBlock(currentBlockRelativeCoordinates, currentBlockColor);
+                    getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
+                    printBoard(board, blockBoardCoordinates, currentBlockColor, queueColors, queueRelativeCoordinates);
+                }
             }
             else if (key == 's') {
                 // Move the block down unitl something is hit

@@ -16,7 +16,7 @@ char newBlock(int blockCoordinates[4][2]);
 void rotateBlock(int blockCoordinates[4][2], char blockColor);
 
 // Checks if the block can rotate at the given position on the board
-int canRotate(int blockCoordinates[4][2], char blockColor, char board[20][10], int userBlockCoordinates[2]);
+int canRotate(int blockCoordinates[4][2], char blockColor, char board[20][10], int userBlockRow, int userBlockColumn);
 
 // Prints the block in a 5x5 grid for debugging, optionally prints coordinates
 void printBlock(int blockCoordinates[4][2], char blockColor, int printCoordinates);
