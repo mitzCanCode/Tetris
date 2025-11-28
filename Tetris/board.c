@@ -56,17 +56,37 @@ void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
     for (int i = 0; i < 20; i++) {
         printf("\033[30m|\033[0m"); // Print first blocks left vertical line
         for (int j = 0; j < 10; j++) {
-            char c = localBoard[i][j];
-            switch(c) {
-                case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
-                case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
-                case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
-                case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
-                case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
-                case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
-                case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
-                case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
-                default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
+            char c = localBoard[i][j]; // Color of the current block
+
+            int isBelowBlock = 0;
+
+            // Loop over all block squares
+            for (int k = 0; k < 4; k++) {
+                int blockX = blockBoardCoordinates[k][0];
+                int blockY = blockBoardCoordinates[k][1];
+
+                // If same column and row is below block, mark it
+                if (j == blockY && i > blockX) {
+                    isBelowBlock = 1;
+                    break;
+                }
+            }
+        
+
+            if (c == '.' && isBelowBlock) {
+                printf("\033[90m█\033[30m|\033[0m"); // Gray for empty below block
+            } else {
+                switch(c) {
+                    case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
+                    case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
+                    case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
+                    case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
+                    case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
+                    case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
+                    case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
+                    case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
+                    default:  printf("\033[30m█\033[30m|\033[0m"); break; // Black
+                }
             }
         }
         
@@ -75,17 +95,25 @@ void printBoard(char board[20][10], int blockBoardCoordinates[4][2], char blockC
         // Print queueBoard
         for (int j = 0; j < 5; j++) {
             char c = queueBoard[i][j];
-            switch(c) {
-                case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
-                case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
-                case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
-                case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
-                case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
-                case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
-                case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
-                case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
-                default:  printf("\033[90m█\033[30m|\033[0m"); break; // Gray
+            if (i ==4) {
+                printf("\033[34m==\033[0m");
+            } else {
+                switch(c) {
+                    case 'p': printf("\033[35m█\033[30m|\033[0m"); break; // Magenta
+                    case 'b': printf("\033[34m█\033[30m|\033[0m"); break; // Blue
+                    case 'r': printf("\033[31m█\033[30m|\033[0m"); break; // Red
+                    case 'y': printf("\033[33m█\033[30m|\033[0m"); break; // Yellow
+                    case 'g': printf("\033[32m█\033[30m|\033[0m"); break; // Green
+                    case 'o': printf("\033[91m█\033[30m|\033[0m"); break; // Bright red/orange
+                    case 'c': printf("\033[36m█\033[30m|\033[0m"); break; // Cyan
+                    case 'w': printf("\033[97m█\033[30m|\033[0m"); break; // White
+                    default:  printf("\033[30m█\033[30m|\033[0m"); break; // Gray
+                }
             }
+        }
+        
+        if (i == 2) {
+            printf(" Next Block");
         }
         
         printf("\n");
