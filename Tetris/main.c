@@ -118,6 +118,19 @@ int main(int argc, const char * argv[]) {
     while (1) {
         if (kbhit()) {
             int key = getch();
+            
+            if (key == 27) { // ESC
+                int k2 = getch();
+                int k3 = getch();
+                
+                if (k2 == '[') {
+                    if (k3 == 'A') key = 'w';     // Up arrow
+                    else if (k3 == 'B') key = 's'; // Down arrow
+                    else if (k3 == 'C') key = 'd'; // Right arrow
+                    else if (k3 == 'D') key = 'a'; // Left arrow
+                }
+            }
+            
             if (key == 'a') {
                 moveLeft(board, blockBoardCoordinates, &blockCenterColumn);
                 getBoardBlockCoordinates(currentBlockRelativeCoordinates, blockCenterRow, blockCenterColumn, blockBoardCoordinates);
