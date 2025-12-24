@@ -1,0 +1,5 @@
+# Ignore Xcode project files
+*.xcodeproj/
+
+# Ignore macOS Finder metadata
+.DS_Store
