@@ -22,7 +22,7 @@ You can check out his version [here.](https://github.com/Tsotciri/tetris)
 
 
 ## My experience:
-This project actually turned out to be quite simpler than I was expecting. The algorith wasn't that hard to come up with and I can proudly say that the amount of AI used is minimal since i wanted to add an extra level of difficulty to this. 
+This project actually turned out to be quite simpler than I was expecting. The algorithm wasn't that hard to come up with and I can proudly say that the amount of AI used is minimal since i wanted to add an extra level of difficulty to this. 
 
 It took me less than a day (as you can see by the commits too) to create the basic functionality of the game.
 
